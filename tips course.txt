@@ -1,0 +1,1104 @@
+Temas curso DBT
+
+Prerequisites
+ 
+	.Snowflake registration
+	.Setting up Snowflake
+	.Installation Python
+		- Virtual environment
+	.Creting dbt project
+	.Connecting to Snowflake (dbt init)
+	.Install and configure VSCode
+
+Course Content
+ 
+ 1. Models
+		CTE - Common Tables Expressions
+ 2. Materializations
+		Incremental
+		Ephemeral
+ 3. Seeds
+ 4. Sources
+		Sources freshness
+ 5. Snapshots
+ 6. Tests
+		Generic test
+		Singular test
+ 7. Macros
+		Custom Generic test
+ 8. Documentation
+		Basic Documentation
+		Markdown-based Docs
+		Custom overview Page
+		Assets
+ 9. Analyses
+10. Hook
+11. Exposures
+12. dbt-expectations
+13. Logging
+14. Variables
+		Jinja variables
+		dbt variables
+		Default values
+15. Orchestration
+		Codigo abierto
+			Apache Airflow
+			Prefect
+			Dagster
+		Pagos
+			Azure Data Factory
+			dbt Cloud
+16. Dagster installation
+
+--------------------------------------------------------------------	
+
+slowly changing dimensions (scd)
+
+----------------------------------
+crear cuenta snowflake
+configurar entorno snowflake
+
+brvdcgb-cc29842
+username = learndbt
+password = Windows2000
+----------------------------------
+
+
+instalacion de python 3.11 (no usar python 3.12)
+(para el curso se recomienda la version 3.11.6)
+
+PS C:\> py --list (-0)
+ -V:3.12 *        Python 3.12 (64-bit)
+ -V:3.11          Python 3.11 (64-bit)
+ 
+PS C:\python312> py -V:3.12 -m venv myenv
+
+PS C:\python312> python --version
+Python 3.11.9
+
+PS C:\python312> myenv\Scripts\activate
+(myenv) PS C:\python312> python --version
+Python 3.12.3
+(myenv) PS C:\python312>
+
+-----------------------------------
+
+GIT instalado
+
+-----------------------------------
+
+pip install dbt-snowflake==1.7.1
+
+-----------------------------------
+
+crear .dbt en carpetas personales 
+
+-----------------------------------
+
+*** crear nuevo proyecto dbt ***
+
+(venv) PS C:\users\usuario nuevo\Desktop\course> dbt init dbtlearn
+11:32:15  Running with dbt=1.7.19
+11:32:15
+Your new dbt project "dbtlearn" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+11:32:15  Setting up your profile.
+Which database would you like to use?
+[1] snowflake
+
+(Don't see the one you want? https://docs.getdbt.com/docs/available-adapters)
+
+Enter a number: 1
+account (https://<this_value>.snowflakecomputing.com): brvdcgb-cc29842
+user (dev username): dbt
+[1] password
+[2] keypair
+[3] sso
+Desired authentication type option (enter a number): 1
+password (dev password):
+role (dev role): transform
+warehouse (warehouse name): COMPUTE_WH
+database (default database that dbt will build objects in): AIRBNB
+schema (default schema that dbt will build objects in): DEV
+threads (1 or more) [1]: 1
+11:39:32  Profile dbtlearn written to C:\Users\Usuario nuevo\.dbt\profiles.yml using target's profile_template.yml and your supplied values. Run 'dbt debug' to validate the connection.
+
+----------------------------------------------------------------------------------------------
+
+*** dbt DEBUG ***
+
+(venv) PS C:\users\usuario nuevo\Desktop\course> cd .\dbtlearn\
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt debug
+11:45:05  Running with dbt=1.7.19
+11:45:05  dbt version: 1.7.19
+11:45:05  python version: 3.11.6
+11:45:05  python path: C:\Users\Usuario nuevo\Desktop\course\venv\Scripts\python.exe
+11:45:05  os info: Windows-10-10.0.19045-SP0
+11:45:06  Using profiles dir at C:\Users\Usuario nuevo\.dbt
+11:45:06  Using profiles.yml file at C:\Users\Usuario nuevo\.dbt\profiles.yml
+11:45:06  Using dbt_project.yml file at C:\users\usuario nuevo\Desktop\course\dbtlearn\dbt_project.yml
+11:45:06  adapter type: snowflake
+11:45:06  adapter version: 1.7.1
+11:45:07  Configuration:
+11:45:07    profiles.yml file [OK found and valid]
+11:45:07    dbt_project.yml file [OK found and valid]
+11:45:07  Required dependencies:
+11:45:07   - git [OK found]
+
+11:45:07  Connection:
+11:45:07    account: brvdcgb-cc29842
+11:45:07    user: dbt
+11:45:07    database: AIRBNB
+11:45:07    warehouse: COMPUTE_WH
+11:45:07    role: transform
+11:45:07    schema: DEV
+11:45:07    authenticator: None
+11:45:07    private_key_path: None
+11:45:07    token: None
+11:45:07    oauth_client_id: None
+11:45:07    query_tag: None
+11:45:07    client_session_keep_alive: False
+11:45:07    host: None
+11:45:07    port: None
+11:45:07    proxy_host: None
+11:45:07    proxy_port: None
+11:45:07    protocol: None
+11:45:07    connect_retries: 1
+11:45:07    connect_timeout: None
+11:45:07    retry_on_database_errors: False
+11:45:07    retry_all: False
+11:45:07    insecure_mode: False
+11:45:07    reuse_connections: None
+11:45:07  Registered adapter: snowflake=1.7.1
+11:45:13    Connection test: [OK connection ok]
+
+11:45:13  All checks passed!
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+----------------------------------------------------------------------------------------------
+abrir visual studio code desde el directorio dbtlearn
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> code .
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+revision del dbt_project.yml
+se tienen que eliminar las lineas de ejemplo
+eliminar models/example
+
+-----------------------------------------------------------------------------------------------
+
+instalacion y configuracion de Power User for DBT en visual studio code
+
+------------------------------------------------------------------------------------------
+
+models overview
+
+(cte) common tables expression
+
+*** crear modelo en snowflake: ***
+
+with raw_listings as (
+    select * from AIRBNB.RAW.RAW_LISTINGS
+)
+select
+    id as listing_id,
+    name as listing_name,
+    listing_url,
+    room_type,
+    minimum_nights,
+    host_id,
+    price as price_str,
+    created_at,
+    updated_at
+from
+    raw_listings
+	
+*** crear en visual studio code ***
+
+crear una carpeta src (models\src) en vsc y generar el archivo src_listings.sql con la consulta creada en snowflake.
+
+Ejecutar dbt:
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt run
+15:32:04  Running with dbt=1.7.19
+15:32:07  Registered adapter: snowflake=1.7.1
+15:32:07  Found 1 model, 0 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+15:32:07
+15:32:18  Concurrency: 1 threads (target='dev')
+15:32:18
+15:32:18  1 of 1 START sql view model DEV.src_listings ................................... [RUN]
+15:32:37  1 of 1 OK created sql view model DEV.src_listings .............................. [SUCCESS 1 in 18.67s]
+15:32:37
+15:32:37  Finished running 1 view model in 0 hours 0 minutes and 29.87 seconds (29.87s).
+15:32:37
+15:32:37  Completed successfully
+15:32:37
+15:32:37  Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+------
+
+se crea un nuevo modelo
+
+with raw_reviews as (
+    select * from AIRBNB.RAW.RAW_REVIEWS   
+)
+select 
+    listing_id,
+    date as review_date,
+    REVIEWER_NAME,
+    comments review_text,
+    sentiment review_sentiment
+from raw_reviews
+
+se crea el archivo src_reviews.sql
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt run
+15:49:18  Running with dbt=1.7.19
+15:49:20  Registered adapter: snowflake=1.7.1
+15:49:21  Found 2 models, 0 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+15:49:21
+15:49:28  Concurrency: 1 threads (target='dev')
+15:49:28
+15:49:28  1 of 2 START sql view model DEV.src_listings ................................... [RUN]
+15:49:33  1 of 2 OK created sql view model DEV.src_listings .............................. [SUCCESS 1 in 4.48s]
+15:49:33  2 of 2 START sql view model DEV.src_reviews .................................... [RUN]
+15:49:37  2 of 2 OK created sql view model DEV.src_reviews ............................... [SUCCESS 1 in 3.88s]
+15:49:37
+15:49:37  Finished running 2 view models in 0 hours 0 minutes and 15.93 seconds (15.93s).
+15:49:37
+15:49:37  Completed successfully
+15:49:37
+15:49:37  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+------------
+
+with source_review as (
+    select * from {{ref("src_reviews")}}
+)
+
+------------
+
+se crea un tercer modelo: src_hosts.sql
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt run
+16:17:53  Running with dbt=1.7.19
+16:17:55  Registered adapter: snowflake=1.7.1
+16:17:56  Found 3 models, 0 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+16:17:56
+16:18:04  Concurrency: 1 threads (target='dev')
+16:18:04
+16:18:04  1 of 3 START sql view model DEV.src_hosts ...................................... [RUN]
+16:18:08  1 of 3 OK created sql view model DEV.src_hosts ................................. [SUCCESS 1 in 4.20s]
+16:18:08  2 of 3 START sql view model DEV.src_listings ................................... [RUN]
+16:18:12  2 of 3 OK created sql view model DEV.src_listings .............................. [SUCCESS 1 in 3.93s]
+16:18:12  3 of 3 START sql view model DEV.src_reviews .................................... [RUN]
+16:18:16  3 of 3 OK created sql view model DEV.src_reviews ............................... [SUCCESS 1 in 3.72s]
+16:18:16
+16:18:16  Finished running 3 view models in 0 hours 0 minutes and 19.87 seconds (19.87s).
+16:18:16
+16:18:16  Completed successfully
+16:18:16
+16:18:16  Done. PASS=3 WARN=0 ERROR=0 SKIP=0 TOTAL=3
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+-------------------------------------------------------------------------------------------------------
+
+creamos dentro de models la carpeta dim
+
+models:
+  dbtlearn:
+    +materialized: view
+    dim:
+     +materialized: table
+	 
+--------------------------------------------------------------------------------------------------------
+
+tablas incrementadas
+
+crear la carpeta fct
+
+crear el archivo fct_reviews.sql  -->> incremental
+
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt run
+19:17:15  Running with dbt=1.7.19
+19:17:18  Registered adapter: snowflake=1.7.1
+19:17:18  Found 6 models, 0 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+19:17:18
+19:17:26  Concurrency: 1 threads (target='dev')
+19:17:26
+19:17:26  1 of 6 START sql view model DEV.src_hosts ...................................... [RUN]
+19:17:31  1 of 6 OK created sql view model DEV.src_hosts ................................. [SUCCESS 1 in 4.60s]
+19:17:31  2 of 6 START sql view model DEV.src_listings ................................... [RUN]
+19:17:34  2 of 6 OK created sql view model DEV.src_listings .............................. [SUCCESS 1 in 3.54s]
+19:17:34  3 of 6 START sql view model DEV.src_reviews .................................... [RUN]
+19:17:38  3 of 6 OK created sql view model DEV.src_reviews ............................... [SUCCESS 1 in 3.62s]
+19:17:38  4 of 6 START sql table model DEV.dim_hosts_cleansed ............................ [RUN]
+19:17:43  4 of 6 OK created sql table model DEV.dim_hosts_cleansed ....................... [SUCCESS 1 in 5.25s]
+19:17:43  5 of 6 START sql table model DEV.dim_listings_cleansed ......................... [RUN]
+19:17:49  5 of 6 OK created sql table model DEV.dim_listings_cleansed .................... [SUCCESS 1 in 5.44s]
+19:17:49  6 of 6 START sql incremental model DEV.fct_reviews ............................. [RUN]
+19:17:55  6 of 6 OK created sql incremental model DEV.fct_reviews ........................ [SUCCESS 1 in 6.68s]
+19:17:55
+19:17:55  Finished running 3 view models, 2 table models, 1 incremental model in 0 hours 0 minutes and 37.07 seconds (37.07s).
+19:17:55
+19:17:55  Completed successfully
+19:17:55
+19:17:55  Done. PASS=6 WARN=0 ERROR=0 SKIP=0 TOTAL=6
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+
+--------------------------------------------------------------------------------------------------------
+
+Se crea el archivo dim_listings_w_hosts.sql
+
+with 
+l as (
+    select * from {{ ref('dim_listings_cleansed') }}
+),
+h as (
+    select * from {{ ref('dim_hosts_cleansed') }}
+)
+select
+    l.listing_id,
+    l.listing_name,
+    l.room_type,
+    l.minimum_nights,
+    l.price,
+    l.host_id,
+    h.host_name,
+    h.is_superhost as host_is_superhost,
+    l.created_at,
+    greatest(l.updated_at, h.updated_at) as updated_at
+from l
+left join h on (h.host_id = l.host_id)
+
+
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn> dbt run
+11:05:32  Running with dbt=1.7.19
+11:05:34  Registered adapter: snowflake=1.7.1
+11:05:34  Found 7 models, 0 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+11:05:34
+11:05:44  Concurrency: 1 threads (target='dev')
+11:05:44
+11:05:44  1 of 7 START sql view model DEV.src_hosts ...................................... [RUN]
+11:05:49  1 of 7 OK created sql view model DEV.src_hosts ................................. [SUCCESS 1 in 4.80s]
+11:05:49  2 of 7 START sql view model DEV.src_listings ................................... [RUN]
+11:05:53  2 of 7 OK created sql view model DEV.src_listings .............................. [SUCCESS 1 in 4.59s]
+11:05:53  3 of 7 START sql view model DEV.src_reviews .................................... [RUN]
+11:05:58  3 of 7 OK created sql view model DEV.src_reviews ............................... [SUCCESS 1 in 4.60s]
+11:05:58  4 of 7 START sql table model DEV.dim_hosts_cleansed ............................ [RUN]
+11:06:04  4 of 7 OK created sql table model DEV.dim_hosts_cleansed ....................... [SUCCESS 1 in 6.36s]
+11:06:04  5 of 7 START sql table model DEV.dim_listings_cleansed ......................... [RUN]
+11:06:15  5 of 7 OK created sql table model DEV.dim_listings_cleansed .................... [SUCCESS 1 in 10.97s]
+11:06:15  6 of 7 START sql incremental model DEV.fct_reviews ............................. [RUN]
+11:06:24  6 of 7 OK created sql incremental model DEV.fct_reviews ........................ [SUCCESS 0 in 8.22s]
+11:06:24  7 of 7 START sql table model DEV.dim_listings_w_hosts .......................... [RUN]
+11:06:30  7 of 7 OK created sql table model DEV.dim_listings_w_hosts ..................... [SUCCESS 1 in 6.28s]
+11:06:30
+11:06:30  Finished running 3 view models, 3 table models, 1 incremental model in 0 hours 0 minutes and 55.43 seconds (55.43s).
+11:06:30
+11:06:30  Completed successfully
+11:06:30
+11:06:30  Done. PASS=7 WARN=0 ERROR=0 SKIP=0 TOTAL=7
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn>
+
+---------------------------------------------------------------------------------------------
+
+modificamos el dbt_project:
+
+models:
+  dbtlearn:
+    +materialized: view
+    dim:
+      +materialized: table
+    src:
+      +materialized: ephemeral
+
+
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn> dbt run
+11:11:14  Running with dbt=1.7.19
+11:11:16  Registered adapter: snowflake=1.7.1
+11:11:17  Found 7 models, 0 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+11:11:17
+11:11:26  Concurrency: 1 threads (target='dev')
+11:11:26
+11:11:26  1 of 4 START sql table model DEV.dim_hosts_cleansed ............................ [RUN]
+11:11:31  1 of 4 OK created sql table model DEV.dim_hosts_cleansed ....................... [SUCCESS 1 in 5.28s]
+11:11:31  2 of 4 START sql table model DEV.dim_listings_cleansed ......................... [RUN]
+11:11:37  2 of 4 OK created sql table model DEV.dim_listings_cleansed .................... [SUCCESS 1 in 6.20s]
+11:11:37  3 of 4 START sql incremental model DEV.fct_reviews ............................. [RUN]
+11:11:46  3 of 4 OK created sql incremental model DEV.fct_reviews ........................ [SUCCESS 0 in 8.66s]
+11:11:46  4 of 4 START sql table model DEV.dim_listings_w_hosts .......................... [RUN]
+11:11:51  4 of 4 OK created sql table model DEV.dim_listings_w_hosts ..................... [SUCCESS 1 in 4.93s]
+11:11:51
+11:11:51  Finished running 3 table models, 1 incremental model in 0 hours 0 minutes and 34.50 seconds (34.50s).
+11:11:51
+11:11:51  Completed successfully
+11:11:51
+11:11:51  Done. PASS=4 WARN=0 ERROR=0 SKIP=0 TOTAL=4
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn>
+
+
+En snowflake eliminar las vistas manualmente:
+	  
+DROP VIEW AIRBNB.DEV.SRC_HOSTS;
+DROP VIEW AIRBNB.DEV.SRC_LISTINGS;
+DROP VIEW AIRBNB.DEV.SRC_REVIEWS;
+
+-----------------------------------------------
+
+sql compilado:
+
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn> code .\target\run\dbtlearn\models\dim\dim_hosts_cleansed.sql
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn>
+
+   
+
+        create or replace transient table AIRBNB.DEV.dim_hosts_cleansed
+         as
+        (with  __dbt__cte__src_hosts as (
+with raw_hosts as (
+
+    select * from AIRBNB.RAW.RAW_HOSTS
+
+)
+
+select 
+
+    id host_id,
+
+    name host_name,
+
+    is_superhost,
+
+    created_at,
+
+    updated_at
+
+from raw_hosts
+), src_hosts as (
+    select * from __dbt__cte__src_hosts
+)
+select 
+    host_id,
+    nvl(host_name, 'Anonymous') host_name,
+    is_superhost,
+    created_at,
+    updated_at
+from src_hosts
+        );
+      
+-------------------------------------------------------
+
+En la carpeta seeds agregar el archivo seed_full_moon_dates.csv y ejecutar lo siguiente:
+
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn> dbt seed
+11:50:42  Running with dbt=1.7.19
+11:50:44  Registered adapter: snowflake=1.7.1
+11:50:45  Found 7 models, 1 seed, 0 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+11:50:45
+11:50:54  Concurrency: 1 threads (target='dev')
+11:50:54
+11:50:54  1 of 1 START seed file DEV.seed_full_moon_dates ................................ [RUN]
+11:51:02  1 of 1 OK loaded seed file DEV.seed_full_moon_dates ............................ [INSERT 272 in 7.32s]
+11:51:02
+11:51:02  Finished running 1 seed in 0 hours 0 minutes and 16.85 seconds (16.85s).
+11:51:02
+11:51:02  Completed successfully
+11:51:02
+11:51:02  Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn>
+
+
+crear en model la carpeta "mart"
+dentro de esta carpeta crear el archivo mart_fullmoon_reviews.sql
+
+----------------------------------------------------------------------------------------------------
+
+Sources:
+
+crear el archivo sources.yml
+
+version: 2
+
+sources:
+  - name: airbnb
+    schema: raw
+    tables:
+      - name: listings
+        identifier: raw_listings
+
+      - name: hosts
+        identifier: raw_hosts
+
+      - name : reviews
+        identifier: raw_reviews
+
+ejemplo de uso:
+select * from {{ source('airbnb', 'reviews') }}
+
+-------------------
+
+dbt compile y dbt source freshness
+
+
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn> dbt compile
+12:38:36  Running with dbt=1.7.19
+12:38:38  Registered adapter: snowflake=1.7.1
+12:38:39  Found 1 seed, 8 models, 3 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+12:38:39
+12:38:44  Concurrency: 1 threads (target='dev')
+12:38:44
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn> dbt source freshness
+12:39:49  Running with dbt=1.7.19
+12:39:51  Registered adapter: snowflake=1.7.1
+12:39:52  Found 1 seed, 8 models, 3 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+12:39:52
+12:39:57  Concurrency: 1 threads (target='dev')
+12:39:57
+12:39:57  1 of 1 START freshness of airbnb.reviews ....................................... [RUN]
+12:40:03  1 of 1 ERROR STALE freshness of airbnb.reviews ................................. [ERROR STALE in 5.63s]
+12:40:03
+12:40:03  Done.
+(venv) PS C:\users\Usuario nuevo\Desktop\course\dbtlearn>
+
+----------------------------------------------------------------------------
+
+snapshots
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt snapshot
+17:47:01  Running with dbt=1.7.19
+17:47:03  Registered adapter: snowflake=1.7.1
+17:47:04  Found 1 seed, 8 models, 1 snapshot, 3 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+17:47:04
+17:47:18  Concurrency: 1 threads (target='dev')
+17:47:18
+17:47:18  1 of 1 START snapshot dev.scd_raw_listings ..................................... [RUN]
+17:47:26  1 of 1 OK snapshotted dev.scd_raw_listings ..................................... [SUCCESS 1 in 7.53s]
+17:47:26
+17:47:26  Finished running 1 snapshot in 0 hours 0 minutes and 21.19 seconds (21.19s).
+17:47:26
+17:47:26  Completed successfully
+17:47:26
+17:47:26  Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+
+select * from AIRBNB.DEV.SCD_RAW_LISTINGS where id = 3176
+
+select * from AIRBNB.RAW.RAW_LISTINGS where id = 3176
+
+update AIRBNB.RAW.RAW_LISTINGS
+set minimum_nights = 30,
+    updated_at = current_timestamp where id = 3176
+	
+-------------------------------------------------------------------------------------
+
+** test **
+
+generic test:
+
+se crea en la carpeta models el archivo schema.yml
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt test --threads 2
+18:34:32  Running with dbt=1.7.19
+18:34:34  Registered adapter: snowflake=1.7.1
+18:34:35  Found 1 seed, 8 models, 1 snapshot, 2 tests, 3 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+18:34:35
+18:34:40  Concurrency: 2 threads (target='dev')
+18:34:40
+18:34:40  1 of 2 START test not_null_dim_listings_cleansed_listing_id .................... [RUN]
+18:34:40  2 of 2 START test unique_dim_listings_cleansed_listing_id ...................... [RUN]
+18:34:45  1 of 2 PASS not_null_dim_listings_cleansed_listing_id .......................... [PASS in 5.20s]
+18:34:46  2 of 2 PASS unique_dim_listings_cleansed_listing_id ............................ [PASS in 5.34s]
+18:34:46
+18:34:46  Finished running 2 tests in 0 hours 0 minutes and 10.95 seconds (10.95s).
+18:34:46
+18:34:46  Completed successfully
+18:34:46
+18:34:46  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+----
+singular test:
+
+en la carpeta test se crea el archivo dim_listings.minimum_nights.sql
+
+SELECT * FROM {{ ref('dim_listings_cleansed') }}
+WHERE minimum_nights < 1
+LIMIT 10
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt test --threads 5
+18:56:24  Running with dbt=1.7.19
+18:56:26  Registered adapter: snowflake=1.7.1
+18:56:27  Found 1 seed, 8 models, 1 snapshot, 6 tests, 3 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+18:56:27  
+18:56:33  Concurrency: 5 threads (target='dev')
+18:56:33  
+18:56:33  1 of 6 START test accepted_values_dim_listings_cleansed_room_type__Entire_home_apt__Private_room__Shared_room__Hotel_room  [RUN]18:56:33  2 of 6 START test dim_listings.minimum_nights .................................. [RUN]
+18:56:33  3 of 6 START test not_null_dim_listings_cleansed_host_id ....................... [RUN]
+18:56:33  4 of 6 START test not_null_dim_listings_cleansed_listing_id .................... [RUN]
+18:56:33  5 of 6 START test relationships_dim_listings_cleansed_host_id__host_id__ref_dim_hosts_cleansed_  [RUN]
+18:56:40  3 of 6 PASS not_null_dim_listings_cleansed_host_id ............................. [PASS in 7.14s]
+18:56:40  1 of 6 PASS accepted_values_dim_listings_cleansed_room_type__Entire_home_apt__Private_room__Shared_room__Hotel_room  [PASS in 7.18s]
+18:56:40  6 of 6 START test unique_dim_listings_cleansed_listing_id ...................... [RUN]
+18:56:40  5 of 6 PASS relationships_dim_listings_cleansed_host_id__host_id__ref_dim_hosts_cleansed_  [PASS in 7.27s]
+18:56:40  4 of 6 PASS not_null_dim_listings_cleansed_listing_id .......................... [PASS in 7.28s]
+18:56:41  2 of 6 PASS dim_listings.minimum_nights ........................................ [PASS in 8.05s]
+18:56:45  6 of 6 PASS unique_dim_listings_cleansed_listing_id ............................ [PASS in 4.55s]
+18:56:45
+18:56:45  Finished running 6 tests in 0 hours 0 minutes and 17.24 seconds (17.24s).
+18:56:45
+18:56:45  Completed successfully
+18:56:45
+18:56:45  Done. PASS=6 WARN=0 ERROR=0 SKIP=0 TOTAL=6
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+SQL:
+select a.review_date, created_at from AIRBNB.DEV.FCT_REVIEWS a
+left join AIRBNB.DEV.DIM_LISTINGS_CLEANSED b on a.listing_id=b.listing_id
+where a.review_date > b.created_at
+
+DBT:
+select a.review_date, created_at 
+from {{ ref('fct_reviews') }}  a
+left join {{ ref('dim_listings_cleansed') }} b on a.listing_id=b.listing_id
+where a.review_date > b.created_at
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt test --threads 5
+19:17:20  Running with dbt=1.7.19
+19:17:22  Registered adapter: snowflake=1.7.1
+19:17:23  Found 1 seed, 8 models, 1 snapshot, 7 tests, 3 sources, 0 exposures, 0 metrics, 430 macros, 0 groups, 0 semantic models
+19:17:23  
+19:17:29  Concurrency: 5 threads (target='dev')
+19:17:29  
+19:17:29  1 of 7 START test accepted_values_dim_listings_cleansed_room_type__Entire_home_apt__Private_room__Shared_room__Hotel_room  [RUN]19:17:29  2 of 7 START test consistent_created_at ........................................ [RUN]
+19:17:29  3 of 7 START test dim_listings.minimum_nights .................................. [RUN]
+19:17:29  4 of 7 START test not_null_dim_listings_cleansed_host_id ....................... [RUN]
+19:17:29  5 of 7 START test not_null_dim_listings_cleansed_listing_id .................... [RUN]
+19:17:36  3 of 7 PASS dim_listings.minimum_nights ........................................ [PASS in 6.75s]
+19:17:36  6 of 7 START test relationships_dim_listings_cleansed_host_id__host_id__ref_dim_hosts_cleansed_  [RUN]
+19:17:36  4 of 7 PASS not_null_dim_listings_cleansed_host_id ............................. [PASS in 6.84s]
+19:17:36  1 of 7 PASS accepted_values_dim_listings_cleansed_room_type__Entire_home_apt__Private_room__Shared_room__Hotel_room  [PASS in 6.87s]
+19:17:36  7 of 7 START test unique_dim_listings_cleansed_listing_id ...................... [RUN]
+19:17:36  5 of 7 PASS not_null_dim_listings_cleansed_listing_id .......................... [PASS in 6.88s]
+19:17:37  2 of 7 FAIL 409698 consistent_created_at ....................................... [FAIL 409698 in 7.98s]
+19:17:41  7 of 7 PASS unique_dim_listings_cleansed_listing_id ............................ [PASS in 4.72s]
+19:17:41  6 of 7 PASS relationships_dim_listings_cleansed_host_id__host_id__ref_dim_hosts_cleansed_  [PASS in 4.88s]
+19:17:41  
+19:17:41  Finished running 7 tests in 0 hours 0 minutes and 17.20 seconds (17.20s).
+19:17:41  
+19:17:41  Completed with 1 error and 0 warnings:
+19:17:41
+19:17:41  Failure in test consistent_created_at (tests\consistent_created_at.sql)
+19:17:41    Got 409698 results, configured to fail if != 0
+19:17:41
+19:17:41    compiled Code at target\compiled\dbtlearn\tests\consistent_created_at.sql
+19:17:41  
+19:17:41  Done. PASS=6 WARN=0 ERROR=1 SKIP=0 TOTAL=7
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> 
+
+
+----------------------------------------------------------------------------------------------------------------
+
+** Macros **
+
+se crea la macro "no_nulls_in_columns.sql"
+
+{% macro no_nulls_in_columns(model) %}
+    SELECT * FROM {{ model }} WHERE
+    {% for col in adapter.get_columns_in_relation(model) -%}
+      {{ col.column }} IS NULL OR
+    {% endfor %}
+    FALSE
+{% endmacro %}
+
+se crea el test que usa la macro:
+no_nulls_in_dim_listings.sql
+
+{{ no_nulls_in_columns( ref('dim_listings_cleansed') ) }}
+
+Custom test with macro
+
+en la carpeta macros se crea el archivo positive_macro.sql
+{% test positive_value(model, column_name) %}
+    SELECT
+        *
+    FROM
+        {{ model }}
+    WHERE
+        {{ column_name}} < 1
+{% endtest %}
+
+despues se la usa en el archivo schema.yml
+     - name: minimum_nights
+       tests:
+         - positive_value
+		 
+-----------------------------------------------------------
+
+instalacion de paquetes:
+
+craer el archivo packages.yml
+
+packages:
+  - package: dbt-labs/dbt_utils
+    version: 0.8.0
+
+
+ejecutar dbt deps para instalar el nuevo paquete.
+
+
+en fct_reviews agregar:
+{{ dbt_utils.surrogate_key(['listing_id', 'review_date', 'reviewer_name', 'review_text']) }} as review_id,
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt run --full-refresh --select  fct_reviews
+11:08:37  Running with dbt=1.7.19
+11:08:39  Registered adapter: snowflake=1.7.1
+11:08:39  Unable to do partial parsing because a project dependency has been added
+11:08:50  Found 8 models, 1 snapshot, 9 tests, 1 seed, 3 sources, 0 exposures, 0 metrics, 619 macros, 0 groups, 0 semantic models
+11:08:50  
+11:09:04  Concurrency: 1 threads (target='dev')
+11:09:04  
+11:09:04  1 of 1 START sql incremental model DEV.fct_reviews ............................. [RUN]
+11:09:13  1 of 1 OK created sql incremental model DEV.fct_reviews ........................ [SUCCESS 1 in 9.02s]
+11:09:13  
+11:09:13  Finished running 1 incremental model in 0 hours 0 minutes and 22.97 seconds (22.97s).
+11:09:13  
+11:09:13  Completed successfully
+11:09:13
+11:09:13  Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> 
+
+-------------------------------------------------------------------------------------------
+
+documentacion
+
+1.schema.yml
+2.markdown files
+
+en el archivo schema.yml agregar :
+description: The hosts's id. References the host table.
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt docs generate
+11:23:29  Running with dbt=1.7.19
+11:23:31  Registered adapter: snowflake=1.7.1
+11:23:32  Found 8 models, 1 snapshot, 9 tests, 1 seed, 3 sources, 0 exposures, 0 metrics, 619 macros, 0 groups, 0 semantic models
+11:23:29  Running with dbt=1.7.19
+11:23:31  Registered adapter: snowflake=1.7.1
+11:23:32  Found 8 models, 1 snapshot, 9 tests, 1 seed, 3 sources, 0 exposures, 0 metrics, 619 macros, 0 groups, 0 semantic models
+11:23:32
+11:23:41  Concurrency: 1 threads (target='dev')
+11:23:41
+11:23:47  Building catalog
+11:23:55  Catalog written to C:\users\usuario nuevo\Desktop\course\dbtlearn\target\catalog.json
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt docs serve
+11:31:07  Running with dbt=1.7.19
+Serving docs at 8080
+To access from your browser, navigate to: http://localhost:8080
+
+Press Ctrl+C to exit.
+127.0.0.1 - - [29/Dec/2024 12:31:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [29/Dec/2024 12:31:13] "GET /manifest.json?cb=1735471873048 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Dec/2024 12:31:13] "GET /catalog.json?cb=1735471873048 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Dec/2024 12:31:16] code 404, message File not found
+127.0.0.1 - - [29/Dec/2024 12:31:16] "GET /$%7Brequire('./assets/favicons/favicon.ico')%7D HTTP/1.1" 404 -
+
+Documentacion MARKDOWN
+
+crear dentro de la carpeta de Models el archivo "docs.md" con este texto:
+
+{% docs dim_listing_cleansed__minimum_nights %}
+
+Minimum number of nights required to rent this property.
+
+Keep in mind that old listings might have `minimum_nights` set
+to 0 in the source tables. Our cleansing algorithm updates this to `1`.
+
+{% enddocs %}
+
+en schema.yml agregar el description :
+     - name: minimum_nights
+      description: '{{ doc("dim_listing_cleansed__minimum_nights") }}'
+       tests:
+         - positive_value
+		 
+generar la documentacion:
+dbt docs generate
+dbt docs serve
+
+Modificar la pagina de resumen:
+crear el archivo overview.md 
+
+{% docs __overview__ %}
+
+# Airbnb pipeline
+Hey, welcome to our Airbnb pipeline documentation!
+
+Here is the schema of our input data:
+![input schema](https://dbtlearn.s3.us-east-2.amazonaws.com/input_schema.png)
+
+{% enddocs %}
+
+para imagen local: 
+crear la carpeta assets.
+------------------------------------------------------------------------------------
+
+Analyses
+
+creamos el archivo full_moon_no_sleep.sql
+
+WITH fullmoon_reviews AS (
+    SELECT * FROM {{ ref('mart_fullmoon_reviews') }}
+)
+SELECT
+    is_full_moon,
+    review_sentiment,
+FROM
+    fullmoon_reviews
+GROUP BY
+    is_full_moon,
+    review_sentiment
+ORDER BY
+    is_full_moon,
+    review_sentiment
+	
+dbt compile
+
+----------------------------------------------------------------------------------
+
+Hooks ????
+
+----------------------------------------------------------------------------------
+version de dbt
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt --version
+Core:
+  - installed: 1.7.19
+  - latest:    1.9.1  - Update available!
+
+  Your version of dbt-core is out of date!
+  You can find instructions for upgrading here:
+  https://docs.getdbt.com/docs/installation
+
+Plugins:
+  - snowflake: 1.7.1 - Update available!
+
+  At least one plugin is out of date or incompatible with dbt-core.
+  You can find instructions for upgrading here:
+  https://docs.getdbt.com/docs/installation
+
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+-------------------------------------------------------------------------------------
+
+Biblioteca GREAT EXPECTATIONS 
+Se usa para la prueba de datos 
+dbt-expectations
+
+packages:
+  - package: calogica/dbt_expectations
+    version: [">=0.10.0", "<0.11.0"]
+	
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt deps
+15:21:43  Running with dbt=1.7.19
+15:21:45  Installing calogica/dbt_expectations
+15:21:52  Installed from version 0.10.4
+15:21:52  Up to date!
+15:21:52  Installing calogica/dbt_date
+15:21:52  Installed from version 0.10.1
+15:21:52  Up to date!
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+en schema.yml :
+
+  - name: dim_listings_w_hosts
+    tests: 
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          compare_model: source('airbnb', 'listings')
+    columns:
+      - name: price
+        tests:
+          - dbt_expectations.expect_column_quantile_values_to_be_between:
+              quantile: .99
+              min_value: 50
+              max_value: 500
+          - dbt_expectations.expect_column_max_to_be_between:
+              max_value: 5000
+              config:
+                severity: warn
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: number
+			  
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt test --select dim_listings_w_hosts
+16:02:07  Running with dbt=1.7.19
+16:02:09  Registered adapter: snowflake=1.7.1
+16:02:10  Found 8 models, 1 snapshot, 1 analysis, 17 tests, 1 seed, 3 sources, 0 exposures, 0 metrics, 699 macros, 0 groups, 0 semantic models
+16:02:10  
+16:02:20  Concurrency: 1 threads (target='dev')
+16:02:20  
+16:02:20  1 of 4 START test dbt_expectations_expect_column_max_to_be_between_dim_listings_w_hosts_price__5000  [RUN]
+16:02:25  1 of 4 WARN 1 dbt_expectations_expect_column_max_to_be_between_dim_listings_w_hosts_price__5000  [WARN 1 in 4.86s]
+16:02:25  2 of 4 START test dbt_expectations_expect_column_quantile_values_to_be_between_dim_listings_w_hosts_price__500__50__0_99  [RUN]
+16:02:29  2 of 4 PASS dbt_expectations_expect_column_quantile_values_to_be_between_dim_listings_w_hosts_price__500__50__0_99  [PASS in 4.58s]
+16:02:29  3 of 4 START test dbt_expectations_expect_column_values_to_be_of_type_dim_listings_w_hosts_price__number  [RUN]
+16:02:34  3 of 4 PASS dbt_expectations_expect_column_values_to_be_of_type_dim_listings_w_hosts_price__number  [PASS in 5.12s]
+16:02:34  4 of 4 START test dbt_expectations_expect_table_row_count_to_equal_other_table_dim_listings_w_hosts_source_airbnb_listings_  [RUN]
+16:02:39  4 of 4 PASS dbt_expectations_expect_table_row_count_to_equal_other_table_dim_listings_w_hosts_source_airbnb_listings_  [PASS in 
+4.67s]
+16:02:39  
+16:02:39  Finished running 4 tests in 0 hours 0 minutes and 28.77 seconds (28.77s).
+16:02:39  
+16:02:39  Completed with 1 warning:
+16:02:39
+16:02:39  Warning in test dbt_expectations_expect_column_max_to_be_between_dim_listings_w_hosts_price__5000 (models\schema.yml)
+16:02:39  Got 1 result, configured to warn if != 0
+16:02:39
+16:02:39    compiled Code at target\compiled\dbtlearn\models\schema.yml\dbt_expectations_expect_column_c59e300e0dddb335c4211147100ac1c6.sql
+16:02:39
+16:02:39  Done. PASS=3 WARN=1 ERROR=0 SKIP=0 TOTAL=4
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> 
+
+
+EXPECTATIONS en source.yml:
+
+
+sources:
+  - name: airbnb
+    schema: raw
+    tables:
+      - name: listings
+        identifier: raw_listings
+        columns:
+          - name: room_type
+            tests:
+              - dbt_expectations.expect_column_distinct_count_to_equal:
+                  value: 4
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt test --select source:airbnb.listings
+16:11:26  Running with dbt=1.7.19
+16:11:28  Registered adapter: snowflake=1.7.1
+16:11:29  Found 1 seed, 8 models, 1 snapshot, 1 analysis, 18 tests, 3 sources, 0 exposures, 0 metrics, 699 macros, 0 groups, 0 semantic models
+16:11:29  
+16:11:39  Concurrency: 1 threads (target='dev')
+16:11:39
+16:11:39  1 of 2 START test dbt_expectations_expect_table_row_count_to_equal_other_table_dim_listings_w_hosts_source_airbnb_listings_  [RUN]
+16:11:44  1 of 2 PASS dbt_expectations_expect_table_row_count_to_equal_other_table_dim_listings_w_hosts_source_airbnb_listings_  [PASS in 
+4.90s]
+16:11:44  2 of 2 START test dbt_expectations_source_expect_column_distinct_count_to_equal_airbnb_listings_room_type__4  [RUN]
+16:11:49  2 of 2 PASS dbt_expectations_source_expect_column_distinct_count_to_equal_airbnb_listings_room_type__4  [PASS in 5.08s]
+16:11:49
+16:11:49  Finished running 2 tests in 0 hours 0 minutes and 19.49 seconds (19.49s).
+16:11:49
+16:11:49  Completed successfully
+16:11:49
+16:11:49  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn>
+
+MODO DEBUG:
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt --debug test --select source:airbnb.listings
+
+Expresion regular:
+
+    tables:
+      - name: listings
+        identifier: raw_listings
+        columns:
+          - name: room_type
+            tests:
+              - dbt_expectations.expect_column_distinct_count_to_equal:
+                  value: 4
+          - name: price
+            tests:
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: "^\\\\$[0-9][0-9\\\\.]+$"
+
+----------------------------------------------------------------------------------------------
+
+logging
+
+se crea una macro:
+
+{% macro dblearn_logging() %}
+    {{ log("get log!", info=True) }}
+{% endmacro %}
+
+info=True -->> sale por pantalla
+
+para comentar la salida:
+{# log("get log!", info=True) #}
+
+para ejecutar la macro especifica:
+dbt run-operation dblearn_logging
+
+------------------------------------------------------------------------------------------------
+
+Variables
+
+{% macro dblearn_variables() %}
+
+    {% set my_name = "Jorge" %}
+    {{ log("Hello " ~ my_name, info=True) }}
+
+    {{ log("Hello dbt user " ~ var("user_name") ~ "!", info=True) }}
+
+{% endmacro %}
+
+(venv) PS C:\users\usuario nuevo\Desktop\course\dbtlearn> dbt run-operation dblearn_variables --vars '{user_name: Bianculli}'
+19:06:11  Running with dbt=1.7.19
+19:06:13  Registered adapter: snowflake=1.7.1
+19:06:13  Unable to do partial parsing because config vars, config profile, or config target have changed
+19:06:26  Found 8 models, 1 snapshot, 1 analysis, 19 tests, 1 seed, 3 sources, 0 exposures, 0 metrics, 701 macros, 0 groups, 0 semantic models
+19:06:26  Hello Jorge
+19:06:26  Hello dbt user Bianculli!
+
+** Valor por default:
+1) var("user_name", "NO USERNAME IS SET!!!")
+ 
+2) en dbt_project.yml
+colocar el valor por default
+
+vars:
+  user_name: default_user_name
+
+MODIFICACION DE IS INCREMENTAL: (FCT_REVIEWS.SQL)
+
+{% if is_incremental() %}
+  {% if var("start_date", False) and var("end_date", False)  %}
+    {{  log('Loading ' ~ this ~ ' incrementally (start_date: ' ~ var("start_date") ~ ', end_date: ' ~ var("end_date"))}}
+    and review_date >= '{{ var("start_date") }}'
+    and review_date <  '{{ var("end_date") }}'
+  {% else %}
+    and review_date > (select max(review_date) from {{ this }})
+    {{ log('Loading ' ~ this ~ ' incrementally (all missing dates)', info=True) }} 
+  {% endif %}
+{% endif %}
+
+dbt run --select fct_reviews
+
+dbt run --select fct_reviews --vars "{start_date: '2024-02-15 00:00:00', end_date: '2024-03-15 23:59:59'}"
+
+
+--------------------------------------------------------------------------------------
+
+
+
